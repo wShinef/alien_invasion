@@ -82,6 +82,7 @@ class AlienInvasion:
         if not self.aliens:
             self.bullets.empty()
             self._create_fleet()
+            self.settings.increase_speed()
 
     def _create_fleet(self):
         alien = Alien(self)
@@ -155,6 +156,7 @@ class AlienInvasion:
 
     def _check_play_button(self, mouse_pos):
         if self.play_button.rect.collidepoint(mouse_pos) and not self.game_active:
+            self.settings.initialize_dynamic_settings()
             self.game_active = True
             self.stats.reset_stats()
             self.bullets.empty()
