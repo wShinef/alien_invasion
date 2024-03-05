@@ -6,6 +6,7 @@ from bullet import Bullet
 from alien import Alien
 from time import sleep
 from game_stats import GameStats
+from button import Button
 
 
 class AlienInvasion:
@@ -27,7 +28,8 @@ class AlienInvasion:
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
         self._create_fleet()
-        self.game_active = True
+        self.game_active = False
+        self.play_button = Button(self, "Play")
 
     def run_game(self):
         """开启游戏主循环"""
@@ -48,6 +50,8 @@ class AlienInvasion:
                 self._check_keydown_events(event)
             elif event.type == pygame.KEYUP:
                 self._check_keyup_events(event)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                self._check_play_button(pygame.mouse.get_pos())
 
     def _check_keydown_events(self, event: pygame.event):
         if event.key == pygame.K_RIGHT:
@@ -122,6 +126,8 @@ class AlienInvasion:
             bullet.draw_bullet()
         self.aliens.draw(self.screen)
         self.ship.blitme()
+        if not self.game_active:
+            self.play_button.draw_button()
         pygame.display.flip()
 
     def _fire_bullet(self):
@@ -139,12 +145,23 @@ class AlienInvasion:
             sleep(0.5)
         else:
             self.game_active = False
+            pygame.mouse.set_visible(True)
 
     def _check_aliens_bottom(self):
         for alien in self.aliens.sprites():
-            if alien.rect.bottom>= self.settings.screen_height:
+            if alien.rect.bottom >= self.settings.screen_height:
                 self._ship_hit()
                 break
+
+    def _check_play_button(self, mouse_pos):
+        if self.play_button.rect.collidepoint(mouse_pos) and not self.game_active:
+            self.game_active = True
+            self.stats.reset_stats()
+            self.bullets.empty()
+            self.aliens.empty()
+            self._create_fleet()
+            self.ship.center_ship()
+            pygame.mouse.set_visible(False)
 
 
 if __name__ == '__main__':
